@@ -146,7 +146,7 @@ export default function HomePage() {
       <header className="hero">
         <div className="brand">
           <NextImage
-            src="/assets/TMS_LOGO.png"
+            src="/assets/TMS_LOGO.jpeg"
             alt="Saraswati Global School logo"
             className="brand-logo"
             width={78}
