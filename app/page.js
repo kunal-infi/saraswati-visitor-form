@@ -68,11 +68,14 @@ export default function HomePage() {
 
     try {
       setStatus("Saving your details...");
-      const res = await fetch("/api/visits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "https://saraswati-visitor-form.vercel.app/api/visits",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!res.ok) {
         setStatus("Could not save your details right now. Please try again.");

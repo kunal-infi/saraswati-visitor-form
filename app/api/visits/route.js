@@ -20,9 +20,25 @@ const pool =
       })
     : null;
 
+const corsOrigin = process.env.CORS_ORIGIN || "*";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": corsOrigin,
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+const withCors = (response) => {
+  Object.entries(corsHeaders).forEach(([key, value]) => response.headers.set(key, value));
+  return response;
+};
+
+export function OPTIONS() {
+  return withCors(new Response(null, { status: 204 }));
+}
+
 export async function POST(req) {
   if (!pool) {
-    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 500 });
+    return withCors(new Response(JSON.stringify({ error: "Database not configured" }), { status: 500 }));
   }
 
   try {
@@ -37,7 +53,7 @@ export async function POST(req) {
     } = body || {};
 
     if (!childName || !className || !phoneNumber || !fatherName || !email) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
+      return withCors(new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 }));
     }
 
     const [result] = await pool.execute(
@@ -46,9 +62,9 @@ export async function POST(req) {
       [childName, className, phoneNumber, fatherName, email, Number(visitorCount || 0)]
     );
 
-    return Response.json({ id: result.insertId });
+    return withCors(Response.json({ id: result.insertId }));
   } catch (error) {
     console.error("Insert failed", error);
-    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+    return withCors(new Response(JSON.stringify({ error: "Server error" }), { status: 500 }));
   }
 }
