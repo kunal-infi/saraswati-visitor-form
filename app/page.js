@@ -67,11 +67,14 @@ export default function HomePage() {
     const visitorCount = payload.visitorCount || "0";
     const message = `Thank you, we have registered ${childName} with ${visitorCount} accompanying visitor(s). Your QR code is ready.`;
 
+    let createdVisitId = "";
+
     try {
       setStatus("Saving your details...");
-      await axios.post("/api/visits", payload, {
+      const response = await axios.post("/api/visits", payload, {
         headers: { "Content-Type": "application/json" },
       });
+      createdVisitId = response?.data?.id || "";
     } catch (error) {
       console.error("Save failed", error);
       setStatus("Could not save your details right now. Please try again.");
@@ -80,7 +83,16 @@ export default function HomePage() {
 
     const filename = `visitor-${sanitizeFileName(childName)}.png`;
     setDownloadName(filename);
-    setQrValue(JSON.stringify(payload));
+    const qrPayload = {
+      visitId: createdVisitId || undefined,
+      childName: payload.childName,
+      className: payload.className,
+      fatherName: payload.fatherName,
+      phoneNumber: payload.phoneNumber,
+      visitorCount: payload.visitorCount,
+      timestamp: payload.timestamp,
+    };
+    setQrValue(JSON.stringify(qrPayload));
     setStatus(message);
     setQrVisible(true);
     setFormData(initialFormState);
@@ -133,7 +145,7 @@ export default function HomePage() {
       <header className="hero">
         <div className="brand">
           <img
-            src="/assets/TMS_LOGO.png"
+            src="/assets/LOGO.jpeg"
             alt="Saraswati Global School logo"
             className="brand-logo"
           />

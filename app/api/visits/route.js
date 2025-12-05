@@ -54,6 +54,7 @@ export async function POST(req) {
         father_name: fatherName,
         email,
         visitor_count: Number(visitorCount || 0),
+        visited: false,
       })
       .select("id")
       .single();

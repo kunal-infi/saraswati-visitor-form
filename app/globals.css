@@ -32,7 +32,7 @@ a {
 }
 
 .hero {
-  background: linear-gradient(120deg, rgba(64, 28, 83, 0.94), rgba(64, 28, 83, 0.78)), url("/assets/TMS_LOGO.png") center/160px no-repeat;
+  background: linear-gradient(120deg, rgba(64, 28, 83, 0.94), rgba(64, 28, 83, 0.78)), url("/assets/LOGO.jpeg") center/160px no-repeat;
   padding: 28px 20px;
   color: #eaf2fb;
 }
@@ -193,6 +193,11 @@ button:active {
   display: block;
 }
 
+.muted {
+  color: var(--muted);
+  margin: 0;
+}
+
 .qr-card {
   margin-top: 12px;
   padding: 14px 16px;
@@ -249,6 +254,100 @@ button:active {
   padding: 18px 12px 30px;
   color: var(--muted);
   font-size: 14px;
+}
+
+.scan-card {
+  display: grid;
+  gap: 16px;
+}
+
+.scan-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scanner-frame {
+  border: 1px dashed rgba(64, 28, 83, 0.3);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(64, 28, 83, 0.05);
+}
+
+.scanner-placeholder {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.scanner-frame video {
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.scan-status {
+  border: 1px solid var(--border);
+  background: #f8fbff;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.scan-status.success {
+  border-color: #b0dfc4;
+  background: #e8f8ef;
+  color: #0c5c2d;
+}
+
+.scan-status.error {
+  border-color: #f2c4c4;
+  background: #fff1f1;
+  color: #8b1c1c;
+}
+
+.scan-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fbfdff;
+}
+
+.scan-details .label {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.scan-details .value {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: rgba(64, 28, 83, 0.08);
+}
+
+.badge.success {
+  background: #d8f3e4;
+  color: #0c5c2d;
+}
+
+.scan-instructions {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {
