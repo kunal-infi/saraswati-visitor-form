@@ -84,7 +84,9 @@ export default function HomePage() {
       timestamp: new Date().toISOString(),
     };
 
-    const childName = isParent ? payload.childName || "your child" : "your visit";
+    const childName = isParent
+      ? payload.childName || "your child"
+      : "your visit";
     const visitorCount = payload.visitorCount || "0";
     const message = isParent
       ? `Thank you, we have registered ${childName} with ${visitorCount} accompanying visitor(s). Your QR code is ready.`
@@ -257,13 +259,19 @@ export default function HomePage() {
 
             {!isParent && (
               <div className="field">
-                <label htmlFor="father-name">Visitor name</label>
+                <label htmlFor="father-name">
+                  {!isParent ? "Visitor" : "Father's"} name
+                </label>
                 <input
                   type="text"
                   id="father-name"
                   name="fatherName"
                   required={!isParent}
-                  placeholder="Enter Visitor's full name"
+                  placeholder={
+                    !isParent
+                      ? "Enter Visitor's full name"
+                      : "Enter Father's full name"
+                  }
                   value={formData.fatherName}
                   onChange={handleChange}
                 />
