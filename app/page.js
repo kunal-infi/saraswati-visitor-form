@@ -257,13 +257,13 @@ export default function HomePage() {
 
             {!isParent && (
               <div className="field">
-                <label htmlFor="father-name">Father name</label>
+                <label htmlFor="father-name">Visitor name</label>
                 <input
                   type="text"
                   id="father-name"
                   name="fatherName"
                   required={!isParent}
-                  placeholder="Enter father's full name"
+                  placeholder="Enter Visitor's full name"
                   value={formData.fatherName}
                   onChange={handleChange}
                 />
