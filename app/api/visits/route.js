@@ -1,24 +1,13 @@
-import mysql from "mysql2/promise";
+import { createClient } from "@supabase/supabase-js";
 
-const requiredEnv = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
-const missing = requiredEnv.filter((key) => !process.env[key]);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
-if (missing.length) {
-  console.warn(`Missing database env vars: ${missing.join(", ")}`);
+if (!supabaseUrl || !supabaseKey) {
+  console.warn("Missing Supabase env vars: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY/ANON_KEY");
 }
 
-const pool =
-  missing.length === 0
-    ? mysql.createPool({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        port: Number(process.env.DB_PORT || 3306),
-        waitForConnections: true,
-        connectionLimit: 10,
-      })
-    : null;
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 const corsOrigin = process.env.CORS_ORIGIN || "*";
 const corsHeaders = {
@@ -37,7 +26,7 @@ export function OPTIONS() {
 }
 
 export async function POST(req) {
-  if (!pool) {
+  if (!supabase) {
     return withCors(new Response(JSON.stringify({ error: "Database not configured" }), { status: 500 }));
   }
 
@@ -56,13 +45,25 @@ export async function POST(req) {
       return withCors(new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 }));
     }
 
-    const [result] = await pool.execute(
-      `INSERT INTO visits (child_name, class_name, phone_number, father_name, email, visitor_count)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [childName, className, phoneNumber, fatherName, email, Number(visitorCount || 0)]
-    );
+    const { data, error } = await supabase
+      .from("visits")
+      .insert({
+        child_name: childName,
+        class_name: className,
+        phone_number: phoneNumber,
+        father_name: fatherName,
+        email,
+        visitor_count: Number(visitorCount || 0),
+      })
+      .select("id")
+      .single();
 
-    return withCors(Response.json({ id: result.insertId }));
+    if (error) {
+      console.error("Insert failed", error);
+      return withCors(new Response(JSON.stringify({ error: "Server error" }), { status: 500 }));
+    }
+
+    return withCors(Response.json({ id: data?.id }));
   } catch (error) {
     console.error("Insert failed", error);
     return withCors(new Response(JSON.stringify({ error: "Server error" }), { status: 500 }));

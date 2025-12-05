@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
+import axios from "axios";
 
 const initialFormState = {
   childName: "",
@@ -68,19 +69,9 @@ export default function HomePage() {
 
     try {
       setStatus("Saving your details...");
-      const res = await fetch(
-        "https://saraswati-visitor-form.vercel.app/api/visits",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!res.ok) {
-        setStatus("Could not save your details right now. Please try again.");
-        return;
-      }
+      await axios.post("/api/visits", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
       console.error("Save failed", error);
       setStatus("Could not save your details right now. Please try again.");
@@ -106,7 +97,9 @@ export default function HomePage() {
 
     const serializer = new XMLSerializer();
     const svgString = serializer.serializeToString(svg);
-    const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
     const url = URL.createObjectURL(svgBlob);
     const image = new Image();
 
@@ -139,11 +132,17 @@ export default function HomePage() {
     <>
       <header className="hero">
         <div className="brand">
-          <img src="/assets/TMS_LOGO.png" alt="Saraswati Global School logo" className="brand-logo" />
+          <img
+            src="/assets/TMS_LOGO.png"
+            alt="Saraswati Global School logo"
+            className="brand-logo"
+          />
           <div className="brand-copy">
             <p className="eyebrow">Saraswati Global School</p>
             <h1>Visitor Registration</h1>
-            <p className="subhead">Let us know you're coming so we can prepare a warm welcome.</p>
+            <p className="subhead">
+              Let us know you're coming so we can prepare a warm welcome.
+            </p>
           </div>
         </div>
       </header>
@@ -151,7 +150,9 @@ export default function HomePage() {
       <main className="main">
         <section className="form-card">
           <h2>Share your details</h2>
-          <p className="lead">We use this information to plan your visit and stay in touch.</p>
+          <p className="lead">
+            We use this information to plan your visit and stay in touch.
+          </p>
           <form onSubmit={handleSubmit} autoComplete="on" noValidate>
             <div className="field">
               <label htmlFor="child-name">Name of the child</label>
@@ -240,7 +241,12 @@ export default function HomePage() {
               <p className="small-note">We’ll confirm via email or phone.</p>
             </div>
 
-            <div id="form-status" className={status ? "visible" : ""} role="status" aria-live="polite">
+            <div
+              id="form-status"
+              className={status ? "visible" : ""}
+              role="status"
+              aria-live="polite"
+            >
               {status}
             </div>
 
