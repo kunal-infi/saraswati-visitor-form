@@ -257,26 +257,24 @@ export default function HomePage() {
               />
             </div>
 
-            {!isParent && (
-              <div className="field">
-                <label htmlFor="father-name">
-                  {!isParent ? "Visitor" : "Father's"} name
-                </label>
-                <input
-                  type="text"
-                  id="father-name"
-                  name="fatherName"
-                  required={!isParent}
-                  placeholder={
-                    !isParent
-                      ? "Enter Visitor's full name"
-                      : "Enter Father's full name"
-                  }
-                  value={formData.fatherName}
-                  onChange={handleChange}
-                />
-              </div>
-            )}
+            <div className="field">
+              <label htmlFor="father-name">
+                {!isParent ? "Visitor" : "Father's"} name
+              </label>
+              <input
+                type="text"
+                id="father-name"
+                name="fatherName"
+                required={!isParent}
+                placeholder={
+                  !isParent
+                    ? "Enter Visitor's full name"
+                    : "Enter Father's full name"
+                }
+                value={formData.fatherName}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="field">
               <label htmlFor="email">Email address</label>
