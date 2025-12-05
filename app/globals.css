@@ -20,7 +20,8 @@ body {
 }
 
 body {
-  font-family: "MuseoModerno", "Museo", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-family: "MuseoModerno", "Museo", "Segoe UI", -apple-system,
+    BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   font-weight: 300;
   background: var(--background);
   color: var(--text);
@@ -32,7 +33,12 @@ a {
 }
 
 .hero {
-  background: linear-gradient(120deg, rgba(64, 28, 83, 0.94), rgba(64, 28, 83, 0.78)), url("/assets/LOGO.jpeg") center/160px no-repeat;
+  background: linear-gradient(
+      120deg,
+      rgba(64, 28, 83, 0.94),
+      rgba(64, 28, 83, 0.78)
+    ),
+    url("/assets/TMS_LOGO.png") center/160px no-repeat;
   padding: 28px 20px;
   color: #eaf2fb;
 }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import axios from "axios";
+import NextImage from "next/image";
 
 const initialFormState = {
   childName: "",
@@ -144,10 +145,12 @@ export default function HomePage() {
     <>
       <header className="hero">
         <div className="brand">
-          <img
-            src="/assets/LOGO.jpeg"
+          <NextImage
+            src="/assets/TMS_LOGO.png"
             alt="Saraswati Global School logo"
             className="brand-logo"
+            width={78}
+            height={78}
           />
           <div className="brand-copy">
             <p className="eyebrow">Saraswati Global School</p>

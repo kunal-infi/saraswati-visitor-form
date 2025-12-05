@@ -12,7 +12,8 @@ const QrReader = dynamic(
   }
 );
 
-const initialStatus = "Point the camera at a visitor QR code to mark them as arrived.";
+const initialStatus =
+  "Point the camera at a visitor QR code to mark them as arrived.";
 
 export default function ScanPage() {
   const [status, setStatus] = useState(initialStatus);
@@ -44,7 +45,9 @@ export default function ScanPage() {
         const phoneNumber = parsed?.phoneNumber || parsed?.phone_number;
 
         if (!visitId && !phoneNumber) {
-          throw new Error("QR code does not include a visit id or phone number.");
+          throw new Error(
+            "QR code does not include a visit id or phone number."
+          );
         }
 
         const response = await axios.post(
