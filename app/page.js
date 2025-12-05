@@ -12,6 +12,7 @@ const initialFormState = {
   fatherName: "",
   email: "",
   visitorCount: "0",
+  visitorType: "",
 };
 
 const sanitizeFileName = (value) =>
@@ -29,6 +30,7 @@ export default function HomePage() {
   const [downloadName, setDownloadName] = useState("visitor-qr.png");
   const qrContainerRef = useRef(null);
   const qrSize = 220;
+  const isParent = formData.visitorType === "Parent";
 
   const resetQr = () => {
     setQrVisible(false);
@@ -39,6 +41,23 @@ export default function HomePage() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    if (name === "visitorType") {
+      const nextIsParent = value === "Parent";
+      setFormData((prev) => ({
+        ...prev,
+        visitorType: value,
+        ...(nextIsParent
+          ? {}
+          : {
+              childName: "",
+              className: "",
+            }),
+      }));
+      setStatus("");
+      resetQr();
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
     setStatus("");
     resetQr();
@@ -55,18 +74,21 @@ export default function HomePage() {
     resetQr();
 
     const payload = {
-      childName: formData.childName.trim(),
-      className: formData.className.trim(),
+      childName: isParent ? formData.childName.trim() : "N/A",
+      className: isParent ? formData.className.trim() : "N/A",
       phoneNumber: formData.phoneNumber.trim(),
-      fatherName: formData.fatherName.trim(),
+      fatherName: isParent ? "" : formData.fatherName.trim(),
       email: formData.email.trim(),
       visitorCount: formData.visitorCount.trim(),
+      visitorType: formData.visitorType || "",
       timestamp: new Date().toISOString(),
     };
 
-    const childName = payload.childName || "your child";
+    const childName = isParent ? payload.childName || "your child" : "your visit";
     const visitorCount = payload.visitorCount || "0";
-    const message = `Thank you, we have registered ${childName} with ${visitorCount} accompanying visitor(s). Your QR code is ready.`;
+    const message = isParent
+      ? `Thank you, we have registered ${childName} with ${visitorCount} accompanying visitor(s). Your QR code is ready.`
+      : `Thank you, we have registered your visit with ${visitorCount} accompanying visitor(s). Your QR code is ready.`;
 
     let createdVisitId = "";
 
@@ -91,6 +113,7 @@ export default function HomePage() {
       fatherName: payload.fatherName,
       phoneNumber: payload.phoneNumber,
       visitorCount: payload.visitorCount,
+      visitorType: payload.visitorType,
       timestamp: payload.timestamp,
     };
     setQrValue(JSON.stringify(qrPayload));
@@ -170,30 +193,52 @@ export default function HomePage() {
           </p>
           <form onSubmit={handleSubmit} autoComplete="on" noValidate>
             <div className="field">
-              <label htmlFor="child-name">Name of the child</label>
-              <input
-                type="text"
-                id="child-name"
-                name="childName"
+              <label htmlFor="visitor-type">I am a</label>
+              <select
+                id="visitor-type"
+                name="visitorType"
                 required
-                placeholder="Enter full name"
-                value={formData.childName}
+                value={formData.visitorType}
                 onChange={handleChange}
-              />
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="Parent">Parent</option>
+                <option value="Visitor">Visitor</option>
+                <option value="Alumnus">Alumnus</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
+            {isParent && (
+              <>
+                <div className="field">
+                  <label htmlFor="child-name">Name of the child</label>
+                  <input
+                    type="text"
+                    id="child-name"
+                    name="childName"
+                    required
+                    placeholder="Enter full name"
+                    value={formData.childName}
+                    onChange={handleChange}
+                  />
+                </div>
 
-            <div className="field">
-              <label htmlFor="class">Class</label>
-              <input
-                type="text"
-                id="class"
-                name="className"
-                required
-                placeholder="e.g., Grade 5"
-                value={formData.className}
-                onChange={handleChange}
-              />
-            </div>
+                <div className="field">
+                  <label htmlFor="class">Class</label>
+                  <input
+                    type="text"
+                    id="class"
+                    name="className"
+                    required
+                    placeholder="e.g., Grade 5"
+                    value={formData.className}
+                    onChange={handleChange}
+                  />
+                </div>
+              </>
+            )}
 
             <div className="field">
               <label htmlFor="phone">Phone number</label>
@@ -210,18 +255,20 @@ export default function HomePage() {
               />
             </div>
 
-            <div className="field">
-              <label htmlFor="father-name">Father name</label>
-              <input
-                type="text"
-                id="father-name"
-                name="fatherName"
-                required
-                placeholder="Enter father's full name"
-                value={formData.fatherName}
-                onChange={handleChange}
-              />
-            </div>
+            {!isParent && (
+              <div className="field">
+                <label htmlFor="father-name">Father name</label>
+                <input
+                  type="text"
+                  id="father-name"
+                  name="fatherName"
+                  required={!isParent}
+                  placeholder="Enter father's full name"
+                  value={formData.fatherName}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
 
             <div className="field">
               <label htmlFor="email">Email address</label>

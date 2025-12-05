@@ -39,21 +39,33 @@ export async function POST(req) {
       fatherName = "",
       email = "",
       visitorCount = 0,
+      visitorType = "",
     } = body || {};
 
-    if (!childName || !className || !phoneNumber || !fatherName || !email) {
-      return withCors(new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 }));
+    const normalizedVisitorType = (visitorType || "").toLowerCase();
+    const isParent = normalizedVisitorType === "parent";
+
+    if (isParent && (!childName || !className)) {
+      return withCors(new Response(JSON.stringify({ error: "Missing student details" }), { status: 400 }));
     }
+
+    if (!phoneNumber || !email) {
+      return withCors(new Response(JSON.stringify({ error: "Missing required contact fields" }), { status: 400 }));
+    }
+
+    const safeChildName = isParent ? childName : childName || "N/A";
+    const safeClassName = isParent ? className : className || "N/A";
 
     const { data, error } = await supabase
       .from("visits")
       .insert({
-        child_name: childName,
-        class_name: className,
-        phone_number: phoneNumber,
-        father_name: fatherName,
-        email,
+        child_name: safeChildName,
+        class_name: safeClassName,
+        phone_number: phoneNumber || null,
+        father_name: fatherName || null,
+        email: email || null,
         visitor_count: Number(visitorCount || 0),
+        visitor_type: visitorType || null,
         visited: false,
       })
       .select("id")

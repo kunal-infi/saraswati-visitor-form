@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const qrCard = document.getElementById('qr-card');
   const qrCanvas = document.getElementById('qr-canvas');
   const downloadLink = document.getElementById('download-qr');
+  const visitorTypeSelect = document.getElementById('visitor-type');
+  const parentOnlyFields = Array.from(document.querySelectorAll('[data-parent-only]'));
 
   const clearStatus = () => {
     status.textContent = '';
@@ -20,9 +22,26 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadLink.removeAttribute('href');
   };
 
-  form.querySelectorAll('input').forEach((input) => {
-    input.addEventListener('input', clearStatus);
-    input.addEventListener('input', resetQr);
+  const applyVisitorTypeRules = () => {
+    const isParent = visitorTypeSelect.value === 'Parent';
+    parentOnlyFields.forEach((el) => {
+      el.hidden = !isParent;
+      const input = el.querySelector('input');
+      if (input) input.required = isParent;
+    });
+  };
+
+  applyVisitorTypeRules();
+
+  visitorTypeSelect.addEventListener('change', () => {
+    applyVisitorTypeRules();
+    clearStatus();
+    resetQr();
+  });
+
+  form.querySelectorAll('input, select').forEach((control) => {
+    control.addEventListener('input', clearStatus);
+    control.addEventListener('input', resetQr);
   });
 
   form.addEventListener('submit', (event) => {
@@ -42,19 +61,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const formData = new FormData(form);
-    const childName = (formData.get('childName') || 'your child').toString().trim();
+    const visitorType = (formData.get('visitorType') || '').toString().trim();
+    const isParent = visitorType === 'Parent';
+    const childNameRaw = (formData.get('childName') || '').toString().trim();
+    const classNameRaw = (formData.get('className') || '').toString().trim();
+    const childName = isParent ? childNameRaw || 'your child' : 'N/A';
     const visitorCount = (formData.get('visitorCount') || '0').toString().trim();
     const payload = {
       childName,
-      className: (formData.get('className') || '').toString().trim(),
+      className: isParent ? classNameRaw : 'N/A',
       phoneNumber: (formData.get('phoneNumber') || '').toString().trim(),
-      fatherName: (formData.get('fatherName') || '').toString().trim(),
+      fatherName: isParent ? '' : (formData.get('fatherName') || '').toString().trim(),
       email: (formData.get('email') || '').toString().trim(),
       visitorCount,
+      visitorType,
       timestamp: new Date().toISOString(),
     };
 
-    status.textContent = `Thank you, we have registered ${childName || 'your child'} with ${visitorCount} accompanying visitor(s). Your QR code is ready.`;
+    if (isParent) {
+      status.textContent = `Thank you, we have registered ${childName || 'your child'} with ${visitorCount} accompanying visitor(s). Your QR code is ready.`;
+    } else {
+      status.textContent = `Thank you, we have registered your visit with ${visitorCount} accompanying visitor(s). Your QR code is ready.`;
+    }
     status.classList.add('visible');
 
     const qrText = JSON.stringify(payload);
@@ -78,5 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     form.reset();
+    applyVisitorTypeRules();
   });
 });

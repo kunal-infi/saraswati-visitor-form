@@ -26,11 +26,22 @@
       <p class="lead">We use this information to plan your visit and stay in touch.</p>
       <form id="visit-form" autocomplete="on">
         <div class="field">
+          <label for="visitor-type">I am a</label>
+          <select id="visitor-type" name="visitorType" required>
+            <option value="" disabled selected>Select one</option>
+            <option value="Parent">Parent</option>
+            <option value="Visitor">Visitor</option>
+            <option value="Alumnus">Alumnus</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field" data-parent-only>
           <label for="child-name">Name of the child</label>
           <input type="text" id="child-name" name="childName" required placeholder="Enter full name">
         </div>
 
-        <div class="field">
+        <div class="field" data-parent-only>
           <label for="class">Class</label>
           <input type="text" id="class" name="className" required placeholder="e.g., Grade 5">
         </div>
