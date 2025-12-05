@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitor Registration | Saraswati Global School</title>
+  <link href="https://fonts.googleapis.com/css2?family=MuseoModerno:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="brand">
+      <img src="assets/LOGO.jpeg" alt="Saraswati Global School logo" class="brand-logo">
+      <div class="brand-copy">
+        <p class="eyebrow">Saraswati Global School</p>
+        <h1>Visitor Registration</h1>
+        <p class="subhead">Let us know you're coming so we can prepare a warm welcome.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="form-card">
+      <h2>Share your details</h2>
+      <p class="lead">We use this information to plan your visit and stay in touch.</p>
+      <form id="visit-form" autocomplete="on">
+        <div class="field">
+          <label for="child-name">Name of the child</label>
+          <input type="text" id="child-name" name="childName" required placeholder="Enter full name">
+        </div>
+
+        <div class="field">
+          <label for="class">Class</label>
+          <input type="text" id="class" name="className" required placeholder="e.g., Grade 5">
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" name="phoneNumber" required inputmode="tel" pattern="[0-9+\-() ]{7,15}" placeholder="+91 98765 43210">
+        </div>
+
+        <div class="field">
+          <label for="father-name">Father name</label>
+          <input type="text" id="father-name" name="fatherName" required placeholder="Enter father's full name">
+        </div>
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" required placeholder="name@example.com">
+        </div>
+
+        <div class="field inline">
+          <label for="visitors">Number of visitors accompanying</label>
+          <input type="number" id="visitors" name="visitorCount" min="0" max="10" step="1" required value="0">
+        </div>
+
+        <div class="actions">
+          <button type="submit">Submit details</button>
+          <p class="small-note">We’ll confirm via email or phone.</p>
+        </div>
+
+        <div id="form-status" role="status" aria-live="polite"></div>
+
+        <div class="qr-card" id="qr-card" hidden>
+          <p class="qr-title">Your visitor QR code</p>
+          <div class="qr-visual">
+            <canvas id="qr-canvas" aria-label="Visitor QR code"></canvas>
+          </div>
+          <a id="download-qr" class="download-btn" download="visitor-qr.png">Download QR</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Need help? Call the admissions desk or email us anytime.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
