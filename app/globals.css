@@ -230,13 +230,96 @@ button:active {
   display: inline-flex;
   flex-direction: column;
   gap: 10px;
-  align-items: center;
+  align-items: stretch;
+  width: min(100%, 360px);
+  text-align: center;
+  justify-self: center;
 }
 
 .qr-title {
   margin: 0;
   font-weight: 700;
   color: var(--text);
+}
+
+.qr-pass {
+  width: 100%;
+  max-width: 320px;
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(64, 28, 83, 0.12);
+  box-shadow: 0 12px 24px rgba(64, 28, 83, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.qr-pass-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  color: #f8f3ff;
+  background: linear-gradient(
+      120deg,
+      rgba(64, 28, 83, 0.88),
+      rgba(64, 28, 83, 0.74)
+    ),
+    url("/assets/prav.png") center/140% no-repeat;
+}
+
+.qr-pass-logo {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.qr-pass-logo-img {
+  height: 52px;
+  width: 52px;
+  object-fit: contain;
+}
+
+.qr-pass-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qr-pass-eyebrow {
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #d9c5ee;
+}
+
+.qr-pass-title {
+  margin: 0;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+
+.qr-pass-footer {
+  padding: 12px 14px;
+  background: #f8f5fb;
+  border-top: 1px solid rgba(64, 28, 83, 0.12);
+}
+
+.qr-pass-footer-title {
+  margin: 0 0 4px;
+  font-weight: 800;
+  color: #2c0f3c;
+  font-size: 14px;
+}
+
+.qr-pass-footer-note {
+  margin: 0;
+  color: #5a4e6f;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .qr-visual {
@@ -260,6 +343,9 @@ button:active {
   font-weight: 700;
   box-shadow: 0 10px 20px rgba(64, 28, 83, 0.18);
   transition: transform 0.1s ease, box-shadow 0.15s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .download-btn:hover {
@@ -270,6 +356,10 @@ button:active {
 .download-btn:active {
   transform: translateY(0);
   box-shadow: 0 8px 16px rgba(64, 28, 83, 0.18);
+}
+
+.qr-card .download-btn {
+  width: 100%;
 }
 
 .footer {

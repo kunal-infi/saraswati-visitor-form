@@ -30,6 +30,10 @@ export default function HomePage() {
   const [downloadName, setDownloadName] = useState("visitor-qr.png");
   const qrContainerRef = useRef(null);
   const qrSize = 220;
+  const qrHeaderHeight = 92;
+  const qrCanvasPadding = 16;
+  const qrGap = 14;
+  const qrFooterHeight = 68;
   const isParent = formData.visitorType === "Parent";
 
   const resetQr = () => {
@@ -139,32 +143,122 @@ export default function HomePage() {
       type: "image/svg+xml;charset=utf-8",
     });
     const url = URL.createObjectURL(svgBlob);
-    const image = new Image();
+    const qrImage = new Image();
 
-    image.onload = () => {
+    const loadImage = (src) =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+
+    qrImage.onload = async () => {
+      const [headerBackground, headerLogo] = await Promise.all([
+        loadImage("/assets/prav.png"),
+        loadImage("/assets/TMS_LOGO.jpeg"),
+      ]);
+
+      const canvasWidth = qrSize + qrCanvasPadding * 2;
+      const canvasHeight =
+        qrHeaderHeight +
+        qrGap +
+        qrSize +
+        qrGap +
+        qrFooterHeight +
+        qrCanvasPadding * 2;
       const canvas = document.createElement("canvas");
-      canvas.width = qrSize;
-      canvas.height = qrSize;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
       const ctx = canvas.getContext("2d");
 
-      if (ctx) {
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, qrSize, qrSize);
-        ctx.drawImage(image, 0, 0, qrSize, qrSize);
-        setDownloadHref(canvas.toDataURL("image/png"));
-      } else {
+      if (!ctx) {
         setDownloadHref(url);
+        return;
       }
 
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      const headerX = qrCanvasPadding;
+      const headerY = qrCanvasPadding;
+      const headerWidth = canvasWidth - qrCanvasPadding * 2;
+
+      ctx.fillStyle = "#f4ecfb";
+      ctx.fillRect(headerX, headerY, headerWidth, qrHeaderHeight);
+
+      if (headerBackground) {
+        const scale = Math.max(
+          headerWidth / headerBackground.width,
+          qrHeaderHeight / headerBackground.height
+        );
+        const bgWidth = headerBackground.width * scale;
+        const bgHeight = headerBackground.height * scale;
+        const bgX = headerX + (headerWidth - bgWidth) / 2;
+        const bgY = headerY + (qrHeaderHeight - bgHeight) / 2;
+        ctx.save();
+        ctx.globalAlpha = 0.18;
+        ctx.drawImage(headerBackground, bgX, bgY, bgWidth, bgHeight);
+        ctx.restore();
+      }
+
+      const logoSize = 64;
+      let textX = headerX + 12 + 8;
+
+      if (headerLogo) {
+        const logoX = headerX + 12;
+        const logoY = headerY + (qrHeaderHeight - logoSize) / 2;
+        ctx.drawImage(headerLogo, logoX, logoY, logoSize, logoSize);
+        textX = logoX + logoSize + 12;
+      }
+
+      const primaryTextY = headerY + qrHeaderHeight / 2 - 2;
+      ctx.fillStyle = "#2c0f3c";
+      ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText("Saraswati Global School", textX, primaryTextY);
+      ctx.font = "12px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText("Visitor QR code", textX, primaryTextY + 18);
+
+      const qrX = (canvasWidth - qrSize) / 2;
+      const qrY = headerY + qrHeaderHeight + qrGap;
+
+      ctx.fillStyle = "#f8f5fb";
+      ctx.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+      ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+
+      const footerX = qrCanvasPadding;
+      const footerY = qrY + qrSize + qrGap;
+      const footerWidth = canvasWidth - qrCanvasPadding * 2;
+      ctx.fillStyle = "#f8f5fb";
+      ctx.fillRect(footerX, footerY, footerWidth, qrFooterHeight);
+      ctx.strokeStyle = "rgba(64, 28, 83, 0.12)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(footerX + 0.5, footerY + 0.5, footerWidth - 1, qrFooterHeight - 1);
+
+      ctx.fillStyle = "#2c0f3c";
+      ctx.font = "bold 14px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText("Show this QR at entry", footerX + 12, footerY + 26);
+      ctx.font = "12px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText("Issued by Saraswati Global School", footerX + 12, footerY + 46);
+
+      setDownloadHref(canvas.toDataURL("image/png"));
       URL.revokeObjectURL(url);
     };
 
-    image.onerror = () => {
+    qrImage.onerror = () => {
       setDownloadHref(url);
     };
 
-    image.src = url;
-  }, [qrVisible, qrValue, qrSize]);
+    qrImage.src = url;
+  }, [
+    qrVisible,
+    qrValue,
+    qrSize,
+    qrCanvasPadding,
+    qrGap,
+    qrHeaderHeight,
+    qrFooterHeight,
+  ]);
 
   return (
     <>
@@ -321,14 +415,37 @@ export default function HomePage() {
             {qrVisible && (
               <div className="qr-card">
                 <p className="qr-title">Your visitor QR code</p>
-                <div className="qr-visual" ref={qrContainerRef}>
-                  <QRCode
-                    value={qrValue}
-                    size={qrSize}
-                    bgColor="#ffffff"
-                    fgColor="#401c53"
-                    aria-label="Visitor QR code"
-                  />
+                <div className="qr-pass">
+                  <div className="qr-pass-header">
+                    <div className="qr-pass-logo">
+                      <NextImage
+                        src="/assets/TMS_LOGO.jpeg"
+                        alt="TMS logo"
+                        width={52}
+                        height={52}
+                        className="qr-pass-logo-img"
+                      />
+                    </div>
+                    <div className="qr-pass-copy">
+                      <p className="qr-pass-eyebrow">Saraswati Global School</p>
+                      <p className="qr-pass-title">Visitor QR</p>
+                    </div>
+                  </div>
+                  <div className="qr-visual" ref={qrContainerRef}>
+                    <QRCode
+                      value={qrValue}
+                      size={qrSize}
+                      bgColor="#ffffff"
+                      fgColor="#401c53"
+                      aria-label="Visitor QR code"
+                    />
+                  </div>
+                  <div className="qr-pass-footer">
+                    <p className="qr-pass-footer-title">Show this QR at entry</p>
+                    <p className="qr-pass-footer-note">
+                      Issued by Saraswati Global School. Thank you for visiting.
+                    </p>
+                  </div>
                 </div>
                 <a
                   className="download-btn"
