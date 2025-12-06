@@ -116,13 +116,13 @@ export default function HomePage() {
             }),
       }));
       setStatus("");
-      resetQr();
+      // resetQr();
       return;
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
     setStatus("");
-    resetQr();
+    // resetQr();
   };
 
   const handleSubmit = async (event) => {
@@ -133,7 +133,7 @@ export default function HomePage() {
       return;
     }
 
-    resetQr();
+    // resetQr();
 
     const contactEmail = formData.email.trim();
     const contactPhone = formData.phoneNumber.trim();
@@ -246,7 +246,7 @@ export default function HomePage() {
       ctx.fillRect(headerX, headerY, headerWidth, qrHeaderHeight);
 
       if (headerBackground) {
-        const scale = Math.max(
+        const scale = Math.min(
           headerWidth / headerBackground.width,
           qrHeaderHeight / headerBackground.height
         );
@@ -322,13 +322,22 @@ export default function HomePage() {
     <>
       <header className="hero">
         <div className="brand">
-          <NextImage
-            src="/assets/TMS_LOGO.jpeg"
-            alt="Saraswati Global School logo"
-            className="brand-logo"
-            width={78}
-            height={78}
-          />
+          <div className="brand-logos">
+            <NextImage
+              src="/assets/TMS_LOGO.jpeg"
+              alt="Saraswati Global School logo"
+              className="brand-logo primary"
+              width={86}
+              height={86}
+            />
+            <NextImage
+              src="/assets/prav.png"
+              alt="Pravahini logo"
+              className="brand-logo secondary"
+              width={118}
+              height={118}
+            />
+          </div>
           <div className="brand-copy">
             <p className="eyebrow">Saraswati Global School</p>
             <h1>Visitor Registration</h1>
@@ -487,6 +496,15 @@ export default function HomePage() {
                     <div className="qr-pass-copy">
                       <p className="qr-pass-eyebrow">Saraswati Global School</p>
                       <p className="qr-pass-title">Visitor QR</p>
+                    </div>
+                    <div className="qr-pass-badge">
+                      <NextImage
+                        src="/assets/prav.png"
+                        alt="Pravahini mark"
+                        width={72}
+                        height={72}
+                        className="qr-pass-badge-img"
+                      />
                     </div>
                   </div>
                   <div className="qr-visual" ref={qrContainerRef}>

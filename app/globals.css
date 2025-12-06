@@ -37,8 +37,7 @@ a {
       120deg,
       rgba(64, 28, 83, 0.94),
       rgba(64, 28, 83, 0.78)
-    ),
-    url("/assets/prav.png") center/160px no-repeat;
+    );
   padding: 28px 20px;
   color: #eaf2fb;
 }
@@ -51,6 +50,12 @@ a {
   margin: 0 auto;
 }
 
+.brand-logos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .brand-logo {
   height: 78px;
   width: auto;
@@ -58,6 +63,11 @@ a {
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.brand-logo.secondary {
+  height: 104px;
+  padding: 10px;
 }
 
 .brand-copy h1 {
@@ -258,14 +268,14 @@ button:active {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: space-between;
   padding: 12px 14px;
   color: #f8f3ff;
   background: linear-gradient(
       120deg,
       rgba(64, 28, 83, 0.88),
       rgba(64, 28, 83, 0.74)
-    ),
-    url("/assets/prav.png") center/140% no-repeat;
+    );
 }
 
 .qr-pass-logo {
@@ -300,6 +310,19 @@ button:active {
   font-weight: 900;
   font-size: 18px;
   letter-spacing: 0.3px;
+}
+
+.qr-pass-badge {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.qr-pass-badge-img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
 }
 
 .qr-pass-footer {
