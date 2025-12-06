@@ -12,7 +12,7 @@ const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabase
 const corsOrigin = process.env.CORS_ORIGIN || "*";
 const corsHeaders = {
   "Access-Control-Allow-Origin": corsOrigin,
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
@@ -23,6 +23,71 @@ const withCors = (response) => {
 
 export function OPTIONS() {
   return withCors(new Response(null, { status: 204 }));
+}
+
+export async function GET(req) {
+  if (!supabase) {
+    return withCors(new Response(JSON.stringify({ error: "Database not configured" }), { status: 500 }));
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const email = (searchParams.get("email") || "").trim();
+    const phoneNumber = (searchParams.get("phoneNumber") || "").trim();
+
+    if (!email && !phoneNumber) {
+      return withCors(new Response(JSON.stringify({ error: "Missing lookup fields" }), { status: 400 }));
+    }
+
+    const filters = [];
+    if (email) filters.push({ column: "email", value: email });
+    if (phoneNumber) filters.push({ column: "phone_number", value: phoneNumber });
+
+    let query = supabase
+      .from("visits")
+      .select(
+        "id, child_name, class_name, phone_number, father_name, email, visitor_count, visitor_type, created_at"
+      )
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (filters.length === 1) {
+      query = query.eq(filters[0].column, filters[0].value);
+    } else if (filters.length > 1) {
+      const orClause = filters.map(({ column, value }) => `${column}.eq.${value}`).join(",");
+      query = query.or(orClause);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Lookup failed", error);
+      return withCors(new Response(JSON.stringify({ error: "Server error" }), { status: 500 }));
+    }
+
+    const record = data?.[0];
+
+    if (!record) {
+      return withCors(new Response(JSON.stringify({ error: "Not found" }), { status: 404 }));
+    }
+
+    return withCors(
+      Response.json({
+        id: record.id,
+        childName: record.child_name,
+        className: record.class_name,
+        phoneNumber: record.phone_number,
+        fatherName: record.father_name,
+        email: record.email,
+        visitorCount: record.visitor_count,
+        visitorType: record.visitor_type,
+        createdAt: record.created_at,
+      })
+    );
+  } catch (error) {
+    console.error("Lookup failed", error);
+    return withCors(new Response(JSON.stringify({ error: "Server error" }), { status: 500 }));
+  }
 }
 
 export async function POST(req) {

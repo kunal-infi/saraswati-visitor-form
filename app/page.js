@@ -21,6 +21,36 @@ const sanitizeFileName = (value) =>
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/(^-|-$)/g, "") || "visitor";
 
+const buildDownloadName = (childName) =>
+  `visitor-${sanitizeFileName(childName || "visitor")}.png`;
+
+const normalizeVisitRecord = (record) => ({
+  id: record?.id || "",
+  childName: record?.childName || record?.child_name || "N/A",
+  className: record?.className || record?.class_name || "N/A",
+  fatherName: record?.fatherName || record?.father_name || "",
+  phoneNumber: record?.phoneNumber || record?.phone_number || "",
+  email: record?.email || "",
+  visitorCount: record?.visitorCount ?? record?.visitor_count ?? "0",
+  visitorType: record?.visitorType || record?.visitor_type || "",
+  timestamp:
+    record?.timestamp ||
+    record?.createdAt ||
+    record?.created_at ||
+    new Date().toISOString(),
+});
+
+const buildQrPayload = (data) => ({
+  visitId: data?.visitId || data?.id || "",
+  childName: data?.childName || "N/A",
+  className: data?.className || "N/A",
+  fatherName: data?.fatherName || "",
+  phoneNumber: data?.phoneNumber || "",
+  visitorCount: `${data?.visitorCount ?? "0"}`,
+  visitorType: data?.visitorType || "",
+  timestamp: data?.timestamp || new Date().toISOString(),
+});
+
 export default function HomePage() {
   const [formData, setFormData] = useState(initialFormState);
   const [status, setStatus] = useState("");
@@ -35,6 +65,34 @@ export default function HomePage() {
   const qrGap = 14;
   const qrFooterHeight = 68;
   const isParent = formData.visitorType === "Parent";
+
+  const findExistingVisit = async (email, phoneNumber) => {
+    try {
+      const params = new URLSearchParams();
+      if (email) params.append("email", email);
+      if (phoneNumber) params.append("phoneNumber", phoneNumber);
+      if (!params.toString()) return null;
+
+      const response = await axios.get(`/api/visits?${params.toString()}`);
+      return response?.data || null;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      console.error("Existing lookup failed", error);
+      return null;
+    }
+  };
+
+  const showQrForRecord = (record, message) => {
+    const normalized = normalizeVisitRecord(record);
+    const qrPayload = buildQrPayload(normalized);
+    setDownloadName(buildDownloadName(normalized.childName));
+    setQrValue(JSON.stringify(qrPayload));
+    setStatus(message);
+    setQrVisible(true);
+    setFormData(initialFormState);
+  };
 
   const resetQr = () => {
     setQrVisible(false);
@@ -77,12 +135,22 @@ export default function HomePage() {
 
     resetQr();
 
+    const contactEmail = formData.email.trim();
+    const contactPhone = formData.phoneNumber.trim();
+
+    setStatus("Checking if you are already registered...");
+    const existingVisit = await findExistingVisit(contactEmail, contactPhone);
+    if (existingVisit) {
+      showQrForRecord(existingVisit, "You're already registered. Your QR code is ready.");
+      return;
+    }
+
     const payload = {
       childName: isParent ? formData.childName.trim() : "N/A",
       className: isParent ? formData.className.trim() : "N/A",
-      phoneNumber: formData.phoneNumber.trim(),
+      phoneNumber: contactPhone,
       fatherName: isParent ? "" : formData.fatherName.trim(),
-      email: formData.email.trim(),
+      email: contactEmail,
       visitorCount: formData.visitorCount.trim(),
       visitorType: formData.visitorType || "",
       timestamp: new Date().toISOString(),
@@ -110,18 +178,8 @@ export default function HomePage() {
       return;
     }
 
-    const filename = `visitor-${sanitizeFileName(childName)}.png`;
-    setDownloadName(filename);
-    const qrPayload = {
-      visitId: createdVisitId || undefined,
-      childName: payload.childName,
-      className: payload.className,
-      fatherName: payload.fatherName,
-      phoneNumber: payload.phoneNumber,
-      visitorCount: payload.visitorCount,
-      visitorType: payload.visitorType,
-      timestamp: payload.timestamp,
-    };
+    const qrPayload = buildQrPayload({ ...payload, visitId: createdVisitId });
+    setDownloadName(buildDownloadName(childName));
     setQrValue(JSON.stringify(qrPayload));
     setStatus(message);
     setQrVisible(true);
