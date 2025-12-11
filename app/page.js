@@ -46,6 +46,7 @@ const buildQrPayload = (data) => ({
   className: data?.className || "N/A",
   fatherName: data?.fatherName || "",
   phoneNumber: data?.phoneNumber || "",
+  email: data?.email || "",
   visitorCount: `${data?.visitorCount ?? "0"}`,
   visitorType: data?.visitorType || "",
   timestamp: data?.timestamp || new Date().toISOString(),

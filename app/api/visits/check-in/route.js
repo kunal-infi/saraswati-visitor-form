@@ -30,30 +30,57 @@ export async function POST(req) {
     return withCors(new Response(JSON.stringify({ error: "Database not configured" }), { status: 500 }));
   }
 
-  let body;
   try {
-    body = await req.json();
-  } catch (error) {
-    console.error("Invalid JSON body", error);
-    return withCors(new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 }));
-  }
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      console.error("Invalid JSON body", error);
+      return withCors(new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 }));
+    }
 
-  const { visitId, phoneNumber } = body || {};
-  if (!visitId && !phoneNumber) {
-    return withCors(new Response(JSON.stringify({ error: "visitId or phoneNumber is required" }), { status: 400 }));
-  }
+    const { visitId, phoneNumber, email } = body || {};
+    if (!visitId && !phoneNumber && !email) {
+      return withCors(new Response(JSON.stringify({ error: "visitId, phoneNumber, or email is required" }), { status: 400 }));
+    }
 
-  try {
-    const updateQuery = supabase
+    let targetId = visitId;
+
+    if (!targetId && (phoneNumber || email)) {
+      let query = supabase.from("visits").select("id").order("created_at", { ascending: false }).limit(1);
+
+      if (phoneNumber && email) {
+        const orClause = `phone_number.eq.${phoneNumber},email.eq.${email}`;
+        query = query.or(orClause);
+      } else if (phoneNumber) {
+        query = query.eq("phone_number", phoneNumber);
+      } else if (email) {
+        query = query.eq("email", email);
+      }
+
+      const { data, error } = await query.single();
+
+      if (error) {
+        const isNoRows = error?.code === "PGRST116";
+        console.error("Lookup before check-in failed", error);
+        const status = isNoRows ? 404 : 500;
+        const message = isNoRows ? "Visit not found" : "Server error";
+        return withCors(new Response(JSON.stringify({ error: message }), { status }));
+      }
+
+      if (!data?.id) {
+        return withCors(new Response(JSON.stringify({ error: "Visit not found" }), { status: 404 }));
+      }
+
+      targetId = data.id;
+    }
+
+    const { data, error } = await supabase
       .from("visits")
       .update({ visited: true })
-      .select("id, visited, child_name, phone_number");
-
-    const selection = visitId
-      ? updateQuery.eq("id", visitId).single()
-      : updateQuery.eq("phone_number", phoneNumber).order("id", { ascending: false }).limit(1).single();
-
-    const { data, error } = await selection;
+      .eq("id", targetId)
+      .select("id, visited, child_name, phone_number, email")
+      .single();
 
     if (error) {
       const isNoRows = error?.code === "PGRST116";
@@ -74,6 +101,7 @@ export async function POST(req) {
         visited: data.visited,
         childName: data.child_name,
         phoneNumber: data.phone_number,
+        email: data.email,
       })
     );
   } catch (error) {

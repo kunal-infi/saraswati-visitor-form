@@ -43,16 +43,15 @@ export default function ScanPage() {
         const parsed = typeof value === "string" ? JSON.parse(value) : value;
         const visitId = parsed?.visitId || parsed?.id;
         const phoneNumber = parsed?.phoneNumber || parsed?.phone_number;
+        const email = parsed?.email || parsed?.Email || parsed?.emailAddress;
 
-        if (!visitId && !phoneNumber) {
-          throw new Error(
-            "QR code does not include a visit id or phone number."
-          );
+        if (!visitId && !phoneNumber && !email) {
+          throw new Error("QR code does not include a visit id, phone number, or email.");
         }
 
         const response = await axios.post(
           "/api/visits/check-in",
-          { visitId, phoneNumber },
+          { visitId, phoneNumber, email },
           { headers: { "Content-Type": "application/json" } }
         );
 
@@ -60,6 +59,7 @@ export default function ScanPage() {
           visitId: response?.data?.visitId || visitId || "",
           childName: parsed?.childName || parsed?.child_name || "",
           phoneNumber: phoneNumber || "",
+          email: response?.data?.email || email || "",
           visited: response?.data?.visited ?? true,
         });
         setStatus("Visitor marked as arrived.");
@@ -161,9 +161,13 @@ export default function ScanPage() {
               <div>
                 <p className="label">Phone number</p>
                 <p className="value">
-                  {visitDetails.phoneNumber || "Not provided"}
-                </p>
-              </div>
+          {visitDetails.phoneNumber || "Not provided"}
+        </p>
+      </div>
+      <div>
+        <p className="label">Email</p>
+        <p className="value">{visitDetails.email || "Not provided"}</p>
+      </div>
               <div>
                 <p className="label">Visited</p>
                 <p className="badge success">
