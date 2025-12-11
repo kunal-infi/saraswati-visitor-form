@@ -510,3 +510,172 @@ button:active {
     transition: none !important;
   }
 }
+
+.records-layout {
+  width: min(1200px, 100%);
+  display: grid;
+  grid-template-columns: 2.1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.table-actions input[type="search"] {
+  min-width: 220px;
+}
+
+.table-wrapper {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: auto;
+  background: #fbfdff;
+}
+
+.record-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 780px;
+}
+
+.record-table thead {
+  background: #f4f7fb;
+}
+
+.record-table th,
+.record-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-size: 14px;
+}
+
+.record-table th {
+  font-weight: 800;
+  color: #0d2238;
+}
+
+.record-table tbody tr:hover {
+  background: #f9fbff;
+}
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cell-stack .small {
+  font-size: 12px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  background: rgba(64, 28, 83, 0.08);
+  color: #2c0f3c;
+}
+
+.pill.success {
+  background: #d8f3e4;
+  color: #0c5c2d;
+}
+
+.pill.info {
+  background: #e8f0fb;
+  color: #102d6b;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ghost {
+  background: #f8f0ff;
+  color: var(--primary);
+  box-shadow: none;
+  border: 1px solid rgba(64, 28, 83, 0.16);
+}
+
+.ghost.danger {
+  background: #fff1f1;
+  color: #8b1c1c;
+  border-color: #f2c4c4;
+}
+
+.side-card {
+  position: sticky;
+  top: 18px;
+}
+
+.side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stacked-form {
+  display: grid;
+  gap: 12px;
+}
+
+.stacked-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: #0d2238;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.inline-status {
+  border: 1px solid var(--border);
+  background: #f8fbff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .records-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .side-card {
+    position: static;
+  }
+}
