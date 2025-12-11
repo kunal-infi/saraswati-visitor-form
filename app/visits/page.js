@@ -28,15 +28,22 @@ const formatDate = (value) => {
       });
 };
 
+const requiredPassword = (process.env.NEXT_PUBLIC_VISITS_PASSWORD || "").trim();
+const requiresPassword = requiredPassword.length > 0;
+const authStorageKey = "visits-dashboard-auth";
+
 export default function VisitsDashboard() {
   const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [formStatus, setFormStatus] = useState("");
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(!requiresPassword);
+  const [authInput, setAuthInput] = useState("");
+  const [authError, setAuthError] = useState("");
 
   const totalVisitors = useMemo(
     () => records.reduce((sum, item) => sum + Number(item.visitorCount || 0), 0),
@@ -44,6 +51,7 @@ export default function VisitsDashboard() {
   );
 
   const fetchRecords = async (overrideSearch) => {
+    if (requiresPassword && !isAuthorized) return;
     setLoading(true);
     setStatus("Fetching latest records...");
     try {
@@ -64,9 +72,22 @@ export default function VisitsDashboard() {
   };
 
   useEffect(() => {
+    if (!requiresPassword) return;
+    try {
+      const stored = window.localStorage.getItem(authStorageKey);
+      if (stored && stored === requiredPassword) {
+        setIsAuthorized(true);
+      }
+    } catch (error) {
+      console.warn("Could not read stored dashboard auth", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthorized) return;
     fetchRecords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthorized]);
 
   const resetForm = () => {
     setEditingId(null);
@@ -167,6 +188,66 @@ export default function VisitsDashboard() {
       setStatus(message);
     }
   };
+
+  const handleAuthSubmit = (event) => {
+    event.preventDefault();
+    if (authInput.trim() === requiredPassword) {
+      setIsAuthorized(true);
+      setAuthError("");
+      try {
+        window.localStorage.setItem(authStorageKey, requiredPassword);
+      } catch (error) {
+        console.warn("Could not persist dashboard auth", error);
+      }
+      fetchRecords();
+    } else {
+      setAuthError("Incorrect password. Please try again.");
+    }
+  };
+
+  if (requiresPassword && !isAuthorized) {
+    return (
+      <>
+        <header className="hero">
+          <div className="brand">
+            <div className="brand-copy">
+              <p className="eyebrow">Visitor database</p>
+              <h1>Enter password to view</h1>
+              <p className="subhead">
+                This dashboard is restricted. Enter the dashboard password to continue.
+              </p>
+            </div>
+          </div>
+        </header>
+        <main className="main">
+          <section className="form-card side-card">
+            <h3>Unlock visits</h3>
+            <form className="stacked-form" onSubmit={handleAuthSubmit}>
+              <label>
+                Dashboard password
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter password"
+                  value={authInput}
+                  onChange={(event) => setAuthInput(event.target.value)}
+                  required
+                />
+              </label>
+              <button type="submit" disabled={!authInput.trim()}>
+                Continue
+              </button>
+              {authError && (
+                <div className="inline-status" role="status" aria-live="polite">
+                  {authError}
+                </div>
+              )}
+            </form>
+          </section>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
